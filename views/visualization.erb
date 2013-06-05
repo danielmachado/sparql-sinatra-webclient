@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Semantic Web - SPARQL endpoint Visualization</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta charset="utf-8">
+		<meta name="description" content="Visual representation from a SPARQL endpoint with Highcharts">
+		<meta name="keywords" content="RDF,N3,SPARQL,JavaScript,Ruby,Sinatra,OpenShift">
+		<meta name="author" content="Daniel Machado Fernandez">
+
+        <link rel="stylesheet" href="./css/bootstrap/bootstrap.min.css">
+        <link rel="stylesheet" href="./css/bootstrap/bootstrap-responsive.min.css">
+        <link rel="stylesheet" href="./css/styles.css">
+
+        <script type="text/javascript" src="./js/jquery.min.js"></script>
+        <script type="text/javascript" src="./js/highcharts/highcharts.js"></script>
+        <script type="text/javascript" src="./js/highcharts/exporting.js"></script>
+        <script type="text/javascript" src="./js/highcharts/gray.js"></script>
+    </head>
+	<body>
+		<div class="container-narrow">
+			<div class="masthead">
+				<ul class="nav nav-pills pull-right">
+					<li><a href="/">Home</a></li>
+					<li class="active"><a href="#">Visualization</a></li>
+					<li><a href="./about">About</a></li>
+				</ul>
+				<h3 class="muted">Semantic Web - University of Oviedo</h3>
+			</div>
+			<hr>
+
+			<div class="jumbotron">
+				<h1>Feel the Linked Data...</h1>
+				<p class="lead">
+					<a href="http://156.35.98.14:3031/sparql.tpl">SPARQL endpoint</a>
+				</p>
+			</div>
+
+			<hr>
+
+			<div class="container-fluid">
+				<div class="row-fluid">
+					<div class="span12">
+						<div class="tabbable" id="tabs-373281">
+							<ul class="nav nav-tabs">
+								<li class="active"><a href="#panel-104911" data-toggle="tab">
+									Top Ten Diseases</a>
+								</li>
+								<li><a href="#panel-104912" data-toggle="tab">Lephrosy vs Electric Consum</a></li>
+								<li><a href="#panel-104913" data-toggle="tab">Census vs Illness</a></li>
+								<li><a href="#panel-104914" data-toggle="tab">Health Facilities</a></li>
+							</ul>
+							<div class="tab-content">
+								<div class="tab-pane active" id="panel-104911">
+
+									<script type="text/javascript">
+										$(function () {
+											$('#container').highcharts({
+												chart: {
+													type: 'bar'
+												},
+												title: {
+													text: 'Top Ten Most Diseases Cases'
+												},
+												subtitle: {
+													text: 'Source: World Health Organization'
+												},
+												xAxis: {
+													<% cat = Array.new %>
+													<% @query_1.each do |triplet, i| %>
+														<%  if(i != ((@query_1.size) -1)) %>
+														<% cat << triplet.p %>
+														<% else %>
+														<% cat << triplet.p %>
+														<% end %>
+														<% end %>
+													categories: <%=cat%>,
+													title: {
+														text: null
+													}
+												},
+												yAxis: {
+													min: 0,
+													title: {
+														text: 'Population',
+														align: 'high'
+													},
+													labels: {
+														overflow: 'justify'
+													}
+												},
+												plotOptions: {
+													bar: {
+														dataLabels: {
+															enabled: true
+														}
+													}
+												},
+												credits: {
+													enabled: false
+												},
+												series: [
+													<% @query_1.each do |triplet, i| %>
+														<%  if(i != ((@query_1.size) -1)) %>
+														{
+															name:'<%= triplet.x %>',
+															data:[<%= triplet.o %>]
+														},
+														<% else %>
+														{
+															name:'<%= triplet.x %>',
+															data:[<%= triplet.o %>]
+														}
+														<% end %>
+													<% end %>
+												]
+											});
+										});
+									</script>
+									<div id="container" style="min-width: 400px; height: 400px; margin: 0 auto"></div>
+								</div>
+								<div class="tab-pane" id="panel-104912">
+									<script type="text/javascript">
+										$(function () {
+											$('#container_2').highcharts({
+												chart: {
+													type: 'scatter',
+													zoomType: 'xy'
+												},
+												title: {
+													text: 'Lephrosy vs Electric Consumption Ratio'
+												},
+												subtitle: {
+													text: 'Source: Wordl Health Organization / United Nations'
+												},
+												xAxis: {
+													title: {
+														enabled: true,
+														text: 'Consumption (KW)'
+													},
+													startOnTick: true,
+													endOnTick: true,
+													showLastLabel: true
+												},
+												yAxis: {
+													title: {
+														text: 'Cases'
+													}
+												},
+												plotOptions: {
+													scatter: {
+														marker: {
+															radius: 5,
+															states: {
+																hover: {
+																	enabled: true,
+																	lineColor: 'rgb(100,100,100)'
+																}
+															}
+														},
+														states: {
+															hover: {
+																marker: {
+																	enabled: false
+																}
+															}
+														},
+														tooltip: {
+															headerFormat: '<b>{series.name}</b><br>',
+															pointFormat: '{point.x} Kw, {point.y} people'
+														}
+													}
+												},
+												series: [<%@query_2.each do |triplet| %>
+												{
+													name: '<%= triplet.x %>',
+													data: [[<%= triplet.o %>,<%= triplet.p %>]]							
+												},
+													<% end %>]
+											});
+										});
+									</script>		
+									<div id="container_2" style="min-width: 650px; height: 400px; margin: 0 auto"></div>
+								</div>
+								<div class="tab-pane" id="panel-104913">
+									<script type="text/javascript">
+										$(function () {
+											$('#container_3').highcharts({
+												chart: {
+													type: 'line',
+													marginRight: 150,
+													marginBottom: 25
+												},
+												title: {
+													text: 'Census People vs Illness Cases ratio',
+													x: -20 //center
+												},
+												subtitle: {
+													text: 'Source: DBpedia / United Nations',
+													x: -20
+												},
+												xAxis: {
+													categories: [<% @query_3.each do |triplet| %> '<%= triplet.x %>', <% end %>]
+												},
+												yAxis: {
+													title: {
+														text: 'People (%)'
+													},
+													plotLines: [{
+														value: 0,
+														width: 1,
+														color: '#808080'
+													}]
+												},
+												legend: {
+													layout: 'vertical',
+													align: 'center',
+													verticalAlign: 'top',
+													x: -10,
+													y: 100,
+													borderWidth: 0
+												},
+												series: [{
+													name: 'Ratio',
+													data: [<% @query_3.each do |triplet| %> <%= triplet.o %>, <%end%> ]
+												}]
+											});
+										});
+									</script>
+									<div id="container_3" style="min-width: 650px; height: 400px; margin: 0 auto"></div>
+								</div>
+								<div class="tab-pane" id="panel-104914">
+									<script type="text/javascript">
+										$(function () {
+											$('#container_4').highcharts({
+												chart: {
+													type: 'column',
+													margin: [ 50, 50, 100, 80]
+												},
+												title: {
+													text: 'Health Facilities in the Most illness countries'
+												},
+												xAxis: {
+													categories: [<% @query_4.each do |triplet| %> '<%= triplet.x %>', <% end %>],
+													labels: {
+														rotation: -45,
+														align: 'right',
+														style: {
+															fontSize: '13px',
+															fontFamily: 'Verdana, sans-serif'
+														}
+													}
+												},
+												yAxis: {
+													min: 0,
+													title: {
+														text: 'People percentage (%)'
+													}
+												},
+												legend: {
+													enabled: false
+												},
+												series: [{
+													name: 'Percentage',
+													data: [<% @query_4.each do |triplet| %> <%=triplet.o%>, <%end%>],
+													dataLabels: {
+														enabled: true,
+														rotation: -90,
+														color: '#000000',
+														align: 'right',
+														x: 4,
+														y: 10,
+														style: {
+															fontSize: '13px',
+															fontFamily: 'Verdana, sans-serif'
+														}
+													}
+												}]
+											});
+										});
+									</script>
+									<div id="container_4" style="min-width: 650px; height: 400px; margin: 0 auto"></div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<hr>
+
+			<div class="footer">
+				<p>&copy; Daniel Machado Fernández - Postgraduate in Web
+				Engineering @ University of Oviedo - Spain 2013</p>
+			</div>
+		</div>
+		<script type="text/javascript" src="./js/bootstrap/bootstrap.min.js"></script>
+    </body>
+</html>
